@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
@@ -49,7 +50,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun PaginationApp(mainViewModel: MainViewModel) {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        Scaffold(modifier = Modifier.systemBarsPadding().fillMaxSize()) { innerPadding ->
             Column(modifier = Modifier.fillMaxSize().padding(innerPadding)){
 
                 MainBody(mainViewModel = mainViewModel)
@@ -67,13 +68,9 @@ class MainActivity : ComponentActivity() {
 
                if(index ==
                    (mainViewModel.mutableStateListItems.size - 1 - mainViewModel.numberOfElementsFromTheEndOfList )
-                   && !mainViewModel.isLoading){
+                   && !mainViewModel.isLoading.value){
 
-                   mainViewModel.viewModelScope.launch(Dispatchers.IO) {
-
-                       mainViewModel.loadNexItems()
-
-                   }
+                    mainViewModel.loadNexItems()
 
                }
 
@@ -82,9 +79,8 @@ class MainActivity : ComponentActivity() {
             }
 
 
-
             item{
-                if(mainViewModel.isLoading){
+                if(mainViewModel.isLoading.value){
                     Column(modifier = Modifier.fillMaxWidth().height(40.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center){

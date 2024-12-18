@@ -1,6 +1,7 @@
 package com.enterprise.pagination
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -20,28 +21,37 @@ class MainViewModel: ViewModel() {
     private var startIndex = 1
     private var pageSize = 50
 
-    var isLoading = false
+    var isLoading = mutableStateOf(false)
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
 
-            loadNexItems()
+       loadNexItems()
 
-        }
     }
 
-    suspend fun loadNexItems(){
+    fun loadNexItems(){
 
-        isLoading = true
+        viewModelScope.launch(Dispatchers.Main) {
 
-        var tempList = appRepository.getItems(startIndex, pageSize)
+            isLoading.value = true
 
-        mutableStateListItems.addAll(tempList)
+            viewModelScope.launch(Dispatchers.IO) {
 
-        startIndex = startIndex + pageSize
+                var tempList = appRepository.getItems(startIndex, pageSize)
 
-        isLoading = false
+                viewModelScope.launch(Dispatchers.Main) {
 
+                    mutableStateListItems.addAll(tempList)
+
+                    startIndex = startIndex + pageSize
+
+                    isLoading.value = false
+
+                }
+
+            }
+
+        }
     }
 
 
