@@ -5,13 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MainViewModel: ViewModel() {
 
     var appRepository = AppRepository()
 
-    var mutableStateListItems = mutableStateListOf<String>()
+    var itemsList = MutableStateFlow(arrayListOf<String>())
+
 
     //How many elements loading new elements will start before the end of the list is reached,
     //Thanks to this number, progress bar will not be shown,
@@ -21,15 +24,15 @@ class MainViewModel: ViewModel() {
     private var startIndex = 1
     private var pageSize = 50
 
-    var isLoading = mutableStateOf(false)
+    var isLoading = MutableStateFlow(false)
 
     init {
 
-       loadNexItems()
+       loadNextItems()
 
     }
 
-    fun loadNexItems(){
+    fun loadNextItems(){
 
         viewModelScope.launch(Dispatchers.Main) {
 
@@ -41,7 +44,12 @@ class MainViewModel: ViewModel() {
 
                 viewModelScope.launch(Dispatchers.Main) {
 
-                    mutableStateListItems.addAll(tempList)
+                    itemsList.update{ currentList ->
+                           val newList = arrayListOf<String>()
+                           newList.addAll(currentList)
+                           newList.addAll(tempList)
+                           newList
+                    }
 
                     startIndex = startIndex + pageSize
 

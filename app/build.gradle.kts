@@ -51,6 +51,9 @@ android {
 
 dependencies {
 
+    //collectAsStateWithLifecycle
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.3")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

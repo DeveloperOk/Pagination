@@ -24,10 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.enterprise.pagination.ui.theme.PaginationTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+
 
 class MainActivity : ComponentActivity() {
 
@@ -62,15 +61,18 @@ class MainActivity : ComponentActivity() {
     private @Composable
     fun MainBody(mainViewModel: MainViewModel) {
 
+        val itemsList = mainViewModel.itemsList.collectAsStateWithLifecycle()
+        val isLoading = mainViewModel.isLoading.collectAsStateWithLifecycle()
+
         LazyColumn(modifier = Modifier.fillMaxSize()){
 
-            itemsIndexed(mainViewModel.mutableStateListItems){ index, item ->
+            itemsIndexed(itemsList.value){ index, item ->
 
                if(index ==
-                   (mainViewModel.mutableStateListItems.size - 1 - mainViewModel.numberOfElementsFromTheEndOfList )
-                   && !mainViewModel.isLoading.value){
+                   (itemsList.value.size - 1 - mainViewModel.numberOfElementsFromTheEndOfList )
+                   && !isLoading.value){
 
-                    mainViewModel.loadNexItems()
+                    mainViewModel.loadNextItems()
 
                }
 
@@ -80,17 +82,14 @@ class MainActivity : ComponentActivity() {
 
 
             item{
-                if(mainViewModel.isLoading.value){
+                if(isLoading.value){
                     Column(modifier = Modifier.fillMaxWidth().height(40.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center){
 
                         CircularProgressIndicator(color = Color.Blue)
+                    }
                 }
-            }
-
-
-
             }
 
         }
